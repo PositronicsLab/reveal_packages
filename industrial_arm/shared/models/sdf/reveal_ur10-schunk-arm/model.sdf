@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<sdf version='1.5'>
+  <model name='ur10_schunk_arm'>
+    <include>
+      <uri>model://reveal_ur10</uri>
+    </include>
+    <include>
+      <uri>model://reveal_schunk_mpg_80</uri>
+      <pose>1.1843 0.256 0.0116 0 0 0</pose>
+    </include>
+    <joint name='fixed_world_joint' type='revolute'>
+      <child>ur10::base_link</child> 
+      <parent>world</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+      </axis>
+    </joint>
+
+    <joint name="weld_hand_to_wrist" type="revolute"> 
+      <parent>ur10::wrist_3_link</parent>
+      <child>schunk_mpg_80::base</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+      </axis>
+    </joint>
+  </model>
+</sdf>

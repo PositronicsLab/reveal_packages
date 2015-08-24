@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="block">
+    <link name="body">
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00001568</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00001568</iyy>
+          <iyz>0</iyz>
+          <izz>0.00001568</izz>
+        </inertia>
+        <mass>0.12</mass>
+      </inertial>
+      <collision name="body_col">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.028 0.028 0.028</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>100</mu>
+              <mu2>100</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0.0</slip1>
+              <slip2>0.0</slip2>
+            </ode>
+            <bullet>
+              <friction>100</friction>
+              <friction2>100</friction2>
+              <fdir1>0 0 0</fdir1>
+              <rolling_friction>100</rolling_friction>
+            </bullet>
+          </friction>
+          <contact>
+            <ode>
+              <soft_cfm>0</soft_cfm>
+              <soft_erp>0.2</soft_erp>
+              <kp>1e12</kp>
+              <kd>1e8</kd>
+              <max_vel>0.01</max_vel>
+              <min_depth>0.002</min_depth>
+            </ode>
+            <bullet>
+              <soft_cfm>0</soft_cfm>
+              <soft_erp>0.2</soft_erp>
+              <kp>1e12</kp>
+              <kd>1.0</kd>
+              <split_impulse>1</split_impulse>
+              <split_impulse_penetration_threshold>-0.01</split_impulse_penetration_threshold>
+            </bullet>
+          </contact>
+        </surface>
+      </collision>
+      <visual name="body_vis">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.028 0.028 0.028</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Green</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

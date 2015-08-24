@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<Reveal>
+  <Manifest>
+    <Gazebo>
+      <World file="reveal.world" />
+      <Product file="libgz-arm-plugin.so" type="controller" />
+<!--      <Product file="libgz-world-plugin.so" type="monitor" />  -->
+    </Gazebo>
+  </Manifest>
+</Reveal>
