@@ -9,12 +9,8 @@ project( "reveal-package-industrial_arm-gazebo-${COMPONENT_NAME}" )
 #SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -g")
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -g ")
 
-message( WARNING "REVEAL_SIM_INCLUDE ${REVEAL_SIM_INCLUDE}" )
-message( WARNING "REVEAL_SIM_LIBRARY ${REVEAL_SIM_LIBRARY}" )
-
 include_directories( ${REVEAL_SIM_INCLUDE} )
 link_directories( ${REVEAL_SIM_LIBRARY} )
-
 
 include( FindPkgConfig )
 if( PKG_CONFIG_FOUND )
@@ -50,9 +46,6 @@ set( HDRS
 
 add_library( gz-arm-plugin SHARED gazebo_arm_plugin.cpp ${HDRS} )
 target_link_libraries( gz-arm-plugin ${LIBS} )
-
-#add_library( gz-world-plugin SHARED gazebo_world_plugin.cpp ${HDRS} )
-#target_link_libraries( gz-world-plugin ${LIBS} )
 
 # Copy data files
 file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
