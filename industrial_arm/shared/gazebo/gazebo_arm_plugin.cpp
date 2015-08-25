@@ -10,15 +10,14 @@ the interface between gazebo and the arm controller code in arm_controller.h
 #include <gazebo/common/Events.hh>
 #include <gazebo/physics/physics.hh>
 
-//#include <reveal/sim/gazebo/helpers.h>
-#include <helpers.h>
-
 // The DATA_GENERATION define is set by cmake and must be manually turned on
 // so that the data is output to file.  This is an example of how the controller
 // can be set up to produce data, but also be compatible for Reveal which by
 // default has no knowledge of the cmake parameter so the switch is off when
 // running a scenario via Reveal 
 #ifdef DATA_GENERATION
+
+#include <helpers.h>
 
 // The DB_DIRECT_INSERT define is set by cmake and must be manually turned on so
 // that data is directly inserted into the database.  This option can speed up
@@ -244,7 +243,8 @@ public:
   virtual void Preupdate( ) {
 
     // get the current time
-    double t = Reveal::Sim::Gazebo::helpers_c::sim_time( _world );
+    //double t = Reveal::Sim::Gazebo::helpers_c::sim_time( _world );
+    double t = _world->GetSimTime().Double();
 
     std::map<std::string, double> q;
     std::map<std::string, double> qd;
