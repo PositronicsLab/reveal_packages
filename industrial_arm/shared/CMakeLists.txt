@@ -7,9 +7,6 @@ set( PACKAGE_ROOT_PATH "${PACKAGE_NAME}" )
 set( ANALYZER_DIR "server" )
 set( CONTROLLER_DIR "shared" )
 
-option( BUILD_CONTROLLER "compile the controller" ON )
-option( BUILD_ANALYZER "compile the analyzer" OFF )
-
 #------------------------------------------------------------------------------
 option( GAZEBO "compile package with Gazebo support" ON )
 
