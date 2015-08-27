@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 2.8.7)
-#project( reveal_package_industrial_arm )
 
 #------------------------------------------------------------------------------
 set( PACKAGE_NAME "industrial_arm" )
 set( PACKAGE_ROOT_PATH "${PACKAGE_NAME}" )
-set( ANALYZER_DIR "server" )
-set( CONTROLLER_DIR "shared" )
+set( ANALYZER_DIR "analyzers" )
+set( EXPERIMENT_DIR "scenario" )
 
 #------------------------------------------------------------------------------
 option( GAZEBO "compile package with Gazebo support" ON )
@@ -23,7 +22,6 @@ if( DATA_GENERATION )
   #  relative path, but good enough for now.
 
   set( ANALYZER_SOURCE_PATH "${PACKAGE_NAME}/${ANALYZER_DIR}/block_energy" )
-  #set( ANALYZER_BUILD_PATH "${PACKAGE_NAME}/${ANALYZER_DIR}/build" )
   set( ANALYZER_BUILD_PATH "${ANALYZER_SOURCE_PATH}/build" )
   set( ANALYZER_BUILD_TARGET "libanalyzer.so" )
 
@@ -34,17 +32,9 @@ if( DATA_GENERATION )
 endif( DATA_GENERATION )
 
 #------------------------------------------------------------------------------
-#------------------------------------------------------------------------------
 
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
-
-#SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -g")
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -g ")
-
-#file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/models DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
-
-#set( LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 
 file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/models DESTINATION ${CMAKE_BINARY_DIR} )
 

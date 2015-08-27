@@ -4,7 +4,6 @@ set( COMPONENT_NAME "controller" )
 project( "reveal-package-industrial_arm-gazebo-${COMPONENT_NAME}" )
 
 #------------------------------------------------------------------------------
-#------------------------------------------------------------------------------
 
 #SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -g")
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -g ")
@@ -29,6 +28,7 @@ find_package( reveal_sim_gazebo REQUIRED )
 include_directories( ${REVEAL_SIM_GAZEBO_INCLUDE_DIRS} )
 link_directories( ${REVEAL_SIM_GAZEBO_LIBRARY_DIRS} )
 
+#------------------------------------------------------------------------------
 set( LIBS 
   ${GAZEBO_LIBRARIES}
   ${REVEAL_LIBRARIES}
@@ -42,9 +42,11 @@ if( DB_DIRECT_INSERT )
   ) 
 endif( DB_DIRECT_INSERT )
 
+#------------------------------------------------------------------------------
 add_library( gz-arm-plugin SHARED gazebo_arm_plugin.cpp )
 target_link_libraries( gz-arm-plugin ${LIBS} )
 
+#------------------------------------------------------------------------------
 # Copy data files
 file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/gazebo.world DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
