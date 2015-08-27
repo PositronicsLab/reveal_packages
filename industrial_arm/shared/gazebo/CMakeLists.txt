@@ -9,6 +9,8 @@ project( "reveal-package-industrial_arm-gazebo-${COMPONENT_NAME}" )
 #SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -g")
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -g ")
 
+include_directories( .. )
+
 include_directories( ${REVEAL_SIM_INCLUDE} )
 link_directories( ${REVEAL_SIM_LIBRARY} )
 
@@ -40,11 +42,7 @@ if( DB_DIRECT_INSERT )
   ) 
 endif( DB_DIRECT_INSERT )
 
-set( HDRS 
-  arm_controller.h
-)
-
-add_library( gz-arm-plugin SHARED gazebo_arm_plugin.cpp ${HDRS} )
+add_library( gz-arm-plugin SHARED gazebo_arm_plugin.cpp )
 target_link_libraries( gz-arm-plugin ${LIBS} )
 
 # Copy data files

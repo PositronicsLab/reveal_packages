@@ -40,7 +40,7 @@ the interface between gazebo and the arm controller code in arm_controller.h
 #include <reveal/core/analyzer.h>
 #endif // DATA_GENERATION
 
-#include "arm_controller.h"
+#include <arm_controller.h>
 
 #define MAX_TIME 16.000
 
