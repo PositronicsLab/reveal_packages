@@ -3,8 +3,7 @@ project( Reveal-Analyzer-Industrial_Arm-Block_Energy )
 
 set( PACKAGE_NAME "industrial_arm" )
 set( PACKAGE_ROOT_PATH "${PACKAGE_NAME}" )
-set( ANALYZER_DIR "server" )
-set( CONTROLLER_DIR "shared" )
+set( ANALYZER_DIR "analyzers" )
 
 set( ANALYZER_NAME "block_energy" )
 
