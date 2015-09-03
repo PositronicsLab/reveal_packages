@@ -24,15 +24,11 @@ find_package( reveal REQUIRED )
 include_directories( ${REVEAL_INCLUDE_DIRS} )
 link_directories( ${REVEAL_LIBRARY_DIRS} )
 
-find_package( reveal_sim_gazebo REQUIRED )
-include_directories( ${REVEAL_SIM_GAZEBO_INCLUDE_DIRS} )
-link_directories( ${REVEAL_SIM_GAZEBO_LIBRARY_DIRS} )
-
 #------------------------------------------------------------------------------
 set( LIBS 
   ${GAZEBO_LIBRARIES}
   ${REVEAL_LIBRARIES}
-  ${REVEAL_SIM_GAZEBO_LIBRARIES}
+  ${REVEAL_SIM_LIBRARY}
 ) 
 
 if( DB_DIRECT_INSERT ) 

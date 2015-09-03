@@ -97,6 +97,10 @@ private:
 
   bool _first_iteration;    /// flag to indicate first step.  only for data gen
 
+  Reveal::Core::model_ptr _arm_filter;
+  Reveal::Core::model_ptr _block_filter;
+  std::vector<Reveal::Core::model_ptr> _filters;
+
 #ifdef DB_DIRECT_INSERT
   /// the local reveal database
   boost::shared_ptr<Reveal::DB::database_c> _db;
@@ -188,6 +192,40 @@ public:
     _scenario = generate_scenario();
     _analyzer = generate_analyzer( _scenario );
 
+    Reveal::Core::link_ptr link;
+    Reveal::Core::joint_ptr joint;
+
+    _block_filter = Reveal::Core::model_ptr( new Reveal::Core::model_c() );
+    _block_filter->id = "block";
+    link = Reveal::Core::link_ptr( new Reveal::Core::link_c( "body" ) );
+    _block_filter->links.push_back( link );
+
+    _filters.push_back( _block_filter );
+
+    _arm_filter = Reveal::Core::model_ptr( new Reveal::Core::model_c() );
+    _arm_filter->id = "ur10_schunk_arm";
+    link = Reveal::Core::link_ptr( new Reveal::Core::link_c("ur10::base_link") );
+    _arm_filter->links.push_back( link );
+
+    joint = Reveal::Core::joint_ptr( new Reveal::Core::joint_c( "ur10::shoulder_pan_joint" ) );
+    _arm_filter->joints.push_back( joint );
+    joint = Reveal::Core::joint_ptr( new Reveal::Core::joint_c( "ur10::shoulder_lift_joint" ) );
+    _arm_filter->joints.push_back( joint );
+    joint = Reveal::Core::joint_ptr( new Reveal::Core::joint_c( "ur10::elbow_joint" ) );
+    _arm_filter->joints.push_back( joint );
+    joint = Reveal::Core::joint_ptr( new Reveal::Core::joint_c( "ur10::wrist_1_joint" ) );
+    _arm_filter->joints.push_back( joint );
+    joint = Reveal::Core::joint_ptr( new Reveal::Core::joint_c( "ur10::wrist_2_joint" ) );
+    _arm_filter->joints.push_back( joint );
+    joint = Reveal::Core::joint_ptr( new Reveal::Core::joint_c( "ur10::wrist_3_joint" ) );
+    _arm_filter->joints.push_back( joint );
+    joint = Reveal::Core::joint_ptr( new Reveal::Core::joint_c( "schunk_mpg_80::l_finger_actuator" ) );
+    _arm_filter->joints.push_back( joint );
+    joint = Reveal::Core::joint_ptr( new Reveal::Core::joint_c( "schunk_mpg_80::r_finger_actuator" ) );
+    _arm_filter->joints.push_back( joint );
+
+    _filters.push_back( _arm_filter );
+
     // reset the world state
     Reveal::Sim::Gazebo::helpers_c::reset( _world );
 #ifdef DB_DIRECT_INSERT
@@ -202,7 +240,6 @@ public:
       printf( "ERROR: failed to insert scenario into database\n" );
     }
     _db->insert( _analyzer );
-
 #endif // DB_DIRECT_INSERT
 #endif // DATA_GENERATION
 
@@ -229,6 +266,7 @@ public:
     // may write the initial trial.  State at t = 0 and no controls
     // but potential solution might not be found until post update and preupdate
     // may interfere
+
 #endif // DATA_GENERATION
 
     // -- FIN --
@@ -290,9 +328,24 @@ public:
                          u.find("wrist_3_joint")->second,
                          u.find("l_finger_actuator")->second,
                          u.find("r_finger_actuator")->second  );
+
+    Reveal::Core::solution_ptr initial_state;
+    if( _first_iteration ) {
+      // if first iteration, read the initial state as the first model solution
+      std::vector<std::string> model_list;
+      model_list.push_back( "ur10_schunk_arm" );
+      model_list.push_back( "block" );
+
+      initial_state = Reveal::Sim::Gazebo::helpers_c::read_model_solution( _world, model_list, _scenario->id );
+    }
 #ifdef DB_DIRECT_INSERT
     // if the data is being directly inserted, insert the trial in the db
     _db->insert( _trial );
+
+    // if first iteration, store as the first model solution
+    if( _first_iteration ) {
+      _db->insert( initial_state );
+    }
 #endif // DB_DIRECT_INSERT
 #endif // DATA_GENERATION
   }
@@ -313,7 +366,7 @@ public:
     model_list.push_back( "block" );
 
     // create a model solution record by reading it from the sim
-    _solution = Reveal::Sim::Gazebo::helpers_c::read_model_solution( _world, model_list, _scenario->id );
+    _solution = Reveal::Sim::Gazebo::helpers_c::read_model_solution( _world, model_list, _scenario->id, _filters );
    
 #ifdef DB_DIRECT_INSERT
     // if direct insert, insert the model solution into the db
@@ -409,20 +462,21 @@ public:
     trial->t = Reveal::Sim::Gazebo::helpers_c::sim_time( _world );
 
     std::map<std::string,double> arm_controls;
-    arm_controls.insert( std::pair<std::string,double>( "ur10::shoulder_pan_joint", sh_pan_f ) );
-    arm_controls.insert( std::pair<std::string,double>( "ur10::shoulder_lift_joint", sh_lift_f ) );
-    arm_controls.insert( std::pair<std::string,double>( "ur10::elbow_joint", elbow_f ) );
-    arm_controls.insert( std::pair<std::string,double>( "ur10::wrist_1_joint", wrist1_f ) );
-    arm_controls.insert( std::pair<std::string,double>( "ur10::wrist2_joint", wrist2_f ) );
-    arm_controls.insert( std::pair<std::string,double>( "ur10::wrist3_joint", wrist3_f ) );
-    arm_controls.insert( std::pair<std::string,double>( "schunk_mpg_80::l_finger_actuator", finger_l_f ) );
-    arm_controls.insert( std::pair<std::string,double>( "schunk_mpg_80::r_finger_actuator", finger_r_f ) );
-    Reveal::Core::model_ptr arm_model = Reveal::Sim::Gazebo::helpers_c::read_model( _world, "ur10_schunk_arm", arm_controls );
+    arm_controls.insert( std::pair<std::string,double>( "ur10::shoulder_pan_joint&0", sh_pan_f ) );
+    arm_controls.insert( std::pair<std::string,double>( "ur10::shoulder_lift_joint&0", sh_lift_f ) );
+    arm_controls.insert( std::pair<std::string,double>( "ur10::elbow_joint&0", elbow_f ) );
+    arm_controls.insert( std::pair<std::string,double>( "ur10::wrist_1_joint&0", wrist1_f ) );
+    arm_controls.insert( std::pair<std::string,double>( "ur10::wrist2_joint&0", wrist2_f ) );
+    arm_controls.insert( std::pair<std::string,double>( "ur10::wrist3_joint&0", wrist3_f ) );
+    arm_controls.insert( std::pair<std::string,double>( "schunk_mpg_80::l_finger_actuator&0", finger_l_f ) );
+    arm_controls.insert( std::pair<std::string,double>( "schunk_mpg_80::r_finger_actuator&0", finger_r_f ) );
+
+    Reveal::Core::model_ptr arm_model = Reveal::Sim::Gazebo::helpers_c::read_model( _world, "ur10_schunk_arm", arm_controls, _arm_filter );
 
     trial->models.push_back( arm_model );
 
     std::map<std::string,double> null_controls;
-    Reveal::Core::model_ptr block_model = Reveal::Sim::Gazebo::helpers_c::read_model( _world, "block", null_controls );
+    Reveal::Core::model_ptr block_model = Reveal::Sim::Gazebo::helpers_c::read_model( _world, "block", null_controls, _block_filter );
 
     trial->models.push_back( block_model );
     

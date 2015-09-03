@@ -18,27 +18,27 @@
 
 using namespace Reveal::Analytics;
 //using namespace gazebo;
-
+/*
 //-------------------------------------------------------------------------
-Reveal::Core::model_ptr arm_model( Reveal::Core::trial_ptr trial ) {
+Reveal::Core::model_ptr arm_model( Reveal::Core::solution_ptr solution ) {
   Reveal::Core::model_ptr nothing;
 
-  for( unsigned i = 0; i < trial->models.size(); i++ )
-    if( trial->models[i]->id == "ur10_schunk_arm" ) return trial->models[i];
+  for( unsigned i = 0; i < solution->models.size(); i++ )
+    if( solution->models[i]->id == "ur10_schunk_arm" ) return solution->models[i];
 
   return nothing;
 }
 
 //-------------------------------------------------------------------------
-Reveal::Core::model_ptr target_model( Reveal::Core::trial_ptr trial ) {
+Reveal::Core::model_ptr target_model( Reveal::Core::solution_ptr solution ) {
   Reveal::Core::model_ptr nothing;
 
-  for( unsigned i = 0; i < trial->models.size(); i++ )
-    if( trial->models[i]->id == "block" ) return trial->models[i];
+  for( unsigned i = 0; i < solution->models.size(); i++ )
+    if( solution->models[i]->id == "block" ) return solution->models[i];
 
   return nothing;
 }
-
+*/
 //-------------------------------------------------------------------------
 Reveal::Core::model_ptr arm_model( Reveal::Core::solution_ptr solution ) {
   Reveal::Core::model_ptr nothing;
@@ -95,27 +95,27 @@ Reveal::Core::link_ptr block_link( Reveal::Core::model_ptr model ) {
 //-------------------------------------------------------------------------
 // Ravelin math
 //-------------------------------------------------------------------------
-Ravelin::Origin3d position( const Reveal::Core::state_c& state ) {
+Ravelin::Origin3d position( const Reveal::Core::link_state_c& state ) {
   return Ravelin::Origin3d( state[0], state[1], state[2] );
 }
 
 //-------------------------------------------------------------------------
-Ravelin::Quatd rotation( const Reveal::Core::state_c& state ) {
+Ravelin::Quatd rotation( const Reveal::Core::link_state_c& state ) {
   return Ravelin::Quatd( state[3], state[4], state[5], state[6] );
 }
 
 //-------------------------------------------------------------------------
-Ravelin::Pose3d pose( const Reveal::Core::state_c& state ) {
+Ravelin::Pose3d pose( const Reveal::Core::link_state_c& state ) {
   return Ravelin::Pose3d( rotation( state ), position( state ) );
 }
 
 //-------------------------------------------------------------------------
-Ravelin::Origin3d linear_velocity( const Reveal::Core::state_c& state ) {
+Ravelin::Origin3d linear_velocity( const Reveal::Core::link_state_c& state ) {
   return Ravelin::Origin3d( state[7], state[8], state[9] );
 }
 
 //-------------------------------------------------------------------------
-Ravelin::Origin3d angular_velocity( const Reveal::Core::state_c& state ) {
+Ravelin::Origin3d angular_velocity( const Reveal::Core::link_state_c& state ) {
   return Ravelin::Origin3d( state[10], state[11], state[12] );
 }
 
@@ -335,11 +335,12 @@ error_e analyze( Reveal::Core::solution_set_ptr input, Reveal::Core::analysis_pt
                    0.0, 0.00001568, 0.0, 
                    0.0, 0.0, 0.00001568 );
 
-  Reveal::Core::trial_ptr trial0 = input->initial_trial;
+  //Reveal::Core::trial_ptr trial0 = input->initial_trial;
+  Reveal::Core::solution_ptr initial_state = input->initial_state;
 
   // get the initial state.  Drawn from the trial data.
-  arm_t0 = arm_model( trial0 );
-  target_t0 = target_model( trial0 );
+  arm_t0 = arm_model( initial_state );
+  target_t0 = target_model( initial_state );
 
   // left gripper energy constants
   Ravelin::Origin3d c_v_l;
