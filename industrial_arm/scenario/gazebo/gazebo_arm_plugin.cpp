@@ -195,15 +195,15 @@ public:
     Reveal::Core::link_ptr link;
     Reveal::Core::joint_ptr joint;
 
-    _block_filter = Reveal::Core::model_ptr( new Reveal::Core::model_c() );
-    _block_filter->id = "block";
+    // build the block filter
+    _block_filter = Reveal::Core::model_ptr( new Reveal::Core::model_c( "block" ) );
     link = Reveal::Core::link_ptr( new Reveal::Core::link_c( "body" ) );
     _block_filter->links.push_back( link );
 
     _filters.push_back( _block_filter );
 
-    _arm_filter = Reveal::Core::model_ptr( new Reveal::Core::model_c() );
-    _arm_filter->id = "ur10_schunk_arm";
+    // build the arm filter
+    _arm_filter = Reveal::Core::model_ptr( new Reveal::Core::model_c( "ur10_schunk_arm" ) );
     link = Reveal::Core::link_ptr( new Reveal::Core::link_c("ur10::base_link") );
     _arm_filter->links.push_back( link );
 

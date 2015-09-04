@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<Reveal>
+  <Manifest>
+    <Gazebo>
+      <World file="reveal.world" />
+      <Product file="libgz-plugin.so" type="controller" />
+    </Gazebo>
+  </Manifest>
+</Reveal>
