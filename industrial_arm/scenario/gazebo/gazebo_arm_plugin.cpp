@@ -95,8 +95,11 @@ private:
   /// the reveal solution data gathered from sim and written to db or file
   Reveal::Core::solution_ptr   _solution;
 
+  Reveal::Core::solution_ptr _initial_state;
+
   bool _first_iteration;    /// flag to indicate first step.  only for data gen
 
+  std::vector<std::string> _model_list;
   Reveal::Core::model_ptr _arm_filter;
   Reveal::Core::model_ptr _block_filter;
   std::vector<Reveal::Core::model_ptr> _filters;
@@ -267,6 +270,10 @@ public:
     // but potential solution might not be found until post update and preupdate
     // may interfere
 
+    // build the list of models intended to be recorded
+    _model_list.push_back( "ur10_schunk_arm" );
+    _model_list.push_back( "block" );
+
 #endif // DATA_GENERATION
 
     // -- FIN --
@@ -329,23 +336,14 @@ public:
                          u.find("l_finger_actuator")->second,
                          u.find("r_finger_actuator")->second  );
 
-    Reveal::Core::solution_ptr initial_state;
     if( _first_iteration ) {
-      // if first iteration, read the initial state as the first model solution
-      std::vector<std::string> model_list;
-      model_list.push_back( "ur10_schunk_arm" );
-      model_list.push_back( "block" );
-
-      initial_state = Reveal::Sim::Gazebo::helpers_c::read_model_solution( _world, model_list, _scenario->id );
+      // read the initial state as the first model solution
+      _initial_state = Reveal::Sim::Gazebo::helpers_c::read_model_solution( _world, _model_list, _scenario->id );
     }
+
 #ifdef DB_DIRECT_INSERT
     // if the data is being directly inserted, insert the trial in the db
     _db->insert( _trial );
-
-    // if first iteration, store as the first model solution
-    if( _first_iteration ) {
-      _db->insert( initial_state );
-    }
 #endif // DB_DIRECT_INSERT
 #endif // DATA_GENERATION
   }
@@ -360,28 +358,31 @@ public:
     double t = Reveal::Sim::Gazebo::helpers_c::sim_time( _world );
     double dt = Reveal::Sim::Gazebo::helpers_c::step_size( _world );
 
-    // build a list of only the models that are to be recorded
-    std::vector<std::string> model_list;
-    model_list.push_back( "ur10_schunk_arm" );
-    model_list.push_back( "block" );
-
     // create a model solution record by reading it from the sim
-    _solution = Reveal::Sim::Gazebo::helpers_c::read_model_solution( _world, model_list, _scenario->id, _filters );
-   
+    _solution = Reveal::Sim::Gazebo::helpers_c::read_model_solution( _world, _model_list, _scenario->id, _filters );
+      
 #ifdef DB_DIRECT_INSERT
-    // if direct insert, insert the model solution into the db
-    _db->insert( _solution );
+    // if first iteration, store as the first model solution
+    if( _first_iteration ) {
+      _db->insert( _initial_state );
+    } else {
+      // if direct insert, insert the model solution into the db
+      _db->insert( _solution ); 
+    }
 #endif // DB_DIRECT_INSERT
 
     if( _first_iteration ) {
       // if first iteration, then export the scenario framework
       bool result = exporter.write( _scenario, _analyzer, _solution, _trial );
+      exporter.write( _initial_state );
+
       _first_iteration = false;
+    } else {
+      exporter.write( _solution );
     }
 
     // write the trial and solution data for the current iteration
-    exporter.write( t, dt, _trial );
-    exporter.write( t, dt, _solution );
+    exporter.write( _trial );
 
     // exit condition
     // Note: this is arbitrary at this point.  It assumes that the scenario
