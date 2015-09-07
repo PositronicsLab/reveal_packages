@@ -50,8 +50,8 @@ stepper_t _stepper;
 Reveal::Core::scenario_ptr _scenario;
 Reveal::Core::analyzer_ptr _analyzer;
 
-Reveal::Core::model_ptr _filter;
-std::vector<Reveal::Core::model_ptr> _filters;
+/// the exporter handles exporting all the scenario data to requisite files
+Reveal::Core::exporter_c _exporter;
 
 #ifdef DB_DIRECT_INSERT
 /// the local reveal database
@@ -110,7 +110,8 @@ Reveal::Core::joint_ptr pivot_joint( void ) {
   pivot->state.resize( 1 );          // joint has 1 DOF
   pivot->control.resize( 0 );        // joint uses no controls
 
-  // TODO: figure out why this is turned 90 degrees
+  // Note: the model is turned 90 degrees in the scenario world frame from its 
+  // model frame
   pivot->state.q( 0, _pendulum->q - PI/2.0 );
   pivot->state.dq( 0, _pendulum->dq );
 
@@ -228,20 +229,14 @@ bool init( void ) {
   }
 #endif // DB_DIRECT_INSERT
 
-  // build the pendulum filter for reveal data writing
-  Reveal::Core::link_ptr link;
-  Reveal::Core::joint_ptr joint;
-  _filter = Reveal::Core::model_ptr( new Reveal::Core::model_c( "pendulum" ) );
-
-  link = Reveal::Core::link_ptr( new Reveal::Core::link_c( "base_link" ) );
-  _filter->insert( link );
-
-  joint = Reveal::Core::joint_ptr( new Reveal::Core::joint_c( "pivot_joint" ) );
-  _filter->insert( joint );
-
-  _filters.push_back( _filter );
-
   return true;
+}
+
+//-----------------------------------------------------------------------------
+void shutdown( void ) {
+#ifdef DB_DIRECT_INSERT
+  _db->close();
+#endif // DB_DIRECT_INSERT
 }
 
 //-----------------------------------------------------------------------------
@@ -272,8 +267,14 @@ void step( double dt, double t0, double& t1 ) {
 int main( void ) {
 
   double t, tf, dt;
+  Reveal::Core::trial_ptr trial;
+  Reveal::Core::solution_ptr solution;
 
-  if( !init() ) return 1;
+  if( !init() ) {
+    printf( "ERROR: Initialization failed.\nExiting\n" );
+    shutdown();
+    return 1;
+  }
 
   t = _start_time;
   dt = _sample_rate;
@@ -281,26 +282,43 @@ int main( void ) {
   // compute initial state
   Reveal::Core::solution_ptr initial_state = define_solution( _scenario, t );
 
+  // get a prototype for the trial;  solution prototype is initial_state
+  trial = define_trial( _scenario, t );
+ 
+  // export the scenario framework 
+  bool result = _exporter.write( _scenario, _analyzer, initial_state, trial );
+  if( !result ) {
+    printf( "ERROR: Failed to write export framework.\nExiting\n" );
+    shutdown();
+    return 2; 
+  }
+
   // write initial state
+  _exporter.write( initial_state );
+#ifdef DB_DIRECT_INSERT
   _db->insert( initial_state );
+#endif // DB_DIRECT_INSERT
 
   while( t <= _end_time ) {
     // define trial
-    Reveal::Core::trial_ptr trial = define_trial( _scenario, t );
+    trial = define_trial( _scenario, t );
 
     // integrate
     step( dt, t, tf );
 
     // update time
-    //t = tf;
     t = update_time( dt );
 
     // define solution
-    Reveal::Core::solution_ptr solution = define_solution( _scenario, t );
+    solution = define_solution( _scenario, t );
 
     // write trial and solution
+    _exporter.write( trial );
+    _exporter.write( solution );
+#ifdef DB_DIRECT_INSERT
     _db->insert( trial );
     _db->insert( solution );
+#endif // DB_DIRECT_INSERT
 
     std::cout << t << " " << _pendulum->q << " " << _pendulum->dq << std::endl;
   }
@@ -310,6 +328,8 @@ int main( void ) {
   _db->close();
 #endif // DB_DIRECT_INSERT
 
+  printf( "Data generation succeeded\n" );
+  shutdown();
   return 0;
 }
 
