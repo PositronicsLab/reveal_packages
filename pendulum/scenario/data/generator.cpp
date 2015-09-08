@@ -409,11 +409,6 @@ int main( void ) {
     std::cout << t << " " << _pendulum->q << " " << _pendulum->dq << std::endl;
   }
 
-#ifdef DB_DIRECT_INSERT
-  /// clean up
-  _db->close();
-#endif // DB_DIRECT_INSERT
-
   // report success and exit cleanly
   printf( "Data generation succeeded\n" );
   shutdown();
