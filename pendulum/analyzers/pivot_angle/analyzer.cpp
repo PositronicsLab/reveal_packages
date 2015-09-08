@@ -54,32 +54,41 @@ error_e analyze( Reveal::Core::solution_set_ptr input, Reveal::Core::analysis_pt
 
   // create a new analysis reference to contain output
   output = Reveal::Core::analysis_ptr( new Reveal::Core::analysis_c( input ) );
-  //output->experiment = input->experiment;
 
+  // add the keys defined for this analysis to the output
   output->add_key( "t" );
   output->add_key( "delta" );
 
+  // iterate over all solutions contained in the solution set and analyze each
   for( unsigned i = 0; i < input->solutions.size(); i++ ) {
+
+    // get references to both the user and desired solutions
     Reveal::Core::solution_ptr user_solution = input->solutions[i];
     Reveal::Core::solution_ptr desired_solution = input->models[i];
 
+    // extract the pendulum state from the user and desired solutions
     Reveal::Core::model_ptr user_state = pendulum_model( input->solutions[i] );
     Reveal::Core::model_ptr desired_state = pendulum_model( input->models[i] );
 
+    // get the time of the solution
     double t = user_solution->t;
 
+    // get the pivot joint state for the user and desired solutions
     Reveal::Core::joint_ptr user_pivot = pivot_joint( user_state );
     Reveal::Core::joint_ptr desired_pivot = pivot_joint( desired_state );
 
+    // compute an analysis.  this case is a simple differential between desired 
+    // and experimental values recorded in the pivot joint's joint angle
     double delta = fabs( desired_pivot->state.q( 0 ) - user_pivot->state.q( 0 ) );
 
+    // build a list of the analytical values ordered by the keys definition 
     std::vector<double> values;
     values.push_back( t );
     values.push_back( delta );
+
+    // add the list of analytical values to the output
     output->add_row( values );
-    
   }  
-  printf( "(analyzer) analyze finished\n" );
 
   return ERROR_NONE;
 }
