@@ -301,7 +301,7 @@ bool init( void ) {
 }
 
 //----------------------------------------------------------------------------
-/// Cleans up all components that expect a clean exit
+/// Clean up all components that require a clean exit
 void shutdown( void ) {
 #ifdef DB_DIRECT_INSERT
   // close the database
