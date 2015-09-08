@@ -17,28 +17,7 @@
 //-----------------------------------------------------------------------------
 
 using namespace Reveal::Analytics;
-//using namespace gazebo;
-/*
-//-------------------------------------------------------------------------
-Reveal::Core::model_ptr arm_model( Reveal::Core::solution_ptr solution ) {
-  Reveal::Core::model_ptr nothing;
 
-  for( unsigned i = 0; i < solution->models.size(); i++ )
-    if( solution->models[i]->id == "ur10_schunk_arm" ) return solution->models[i];
-
-  return nothing;
-}
-
-//-------------------------------------------------------------------------
-Reveal::Core::model_ptr target_model( Reveal::Core::solution_ptr solution ) {
-  Reveal::Core::model_ptr nothing;
-
-  for( unsigned i = 0; i < solution->models.size(); i++ )
-    if( solution->models[i]->id == "block" ) return solution->models[i];
-
-  return nothing;
-}
-*/
 //-------------------------------------------------------------------------
 Reveal::Core::model_ptr arm_model( Reveal::Core::solution_ptr solution ) {
   Reveal::Core::model_ptr nothing;
@@ -352,8 +331,7 @@ error_e analyze( Reveal::Core::solution_set_ptr input, Reveal::Core::analysis_pt
   // compute the initial energy from initial state.
   get_initial_config( arm_t0, target_t0, c_v_l, c_v_r, c_omega_l, c_omega_r );
 
-  output = Reveal::Core::analysis_ptr( new Reveal::Core::analysis_c() );
-  output->experiment = input->experiment;
+  output = Reveal::Core::analysis_ptr( new Reveal::Core::analysis_c( input ) );
 
   output->add_key( "t" );
   output->add_key( "KE" );
