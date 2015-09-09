@@ -23,10 +23,11 @@ void get_initial_velocity( std::map<std::string,double>& velocity ) {
 //-----------------------------------------------------------------------------
 /// the control function which returns the set of torques computed to move the 
 /// joint to the desired position with the desired velocity
-/// @param t the time at which to calculate the control
-/// @param pos the map of joint positions mapped to the joint name
-/// @param vel the map of joint velocities mapped to the joint name
-/// @param force the map returned containing the joint torques mapped joint name
+/// @param t[in] the time at which to calculate the control
+/// @param position[in] the map of joint positions mapped to the joint name
+/// @param velocity[in] the map of joint velocities mapped to the joint name
+/// @param force[out] the map returned containing the joint torques mapped 
+///        joint name
 void get_control( double t, std::map<std::string,double> position, std::map<std::string,double> velocity, std::map<std::string, double>& force ) {
 
   double q = position.find( "pivot_joint" )->second;
