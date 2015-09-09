@@ -12,12 +12,12 @@
 
 //-----------------------------------------------------------------------------
 /// returns the initial velocity of all of the joints
-/// @param qd the map returned containing the velocities mapped to the name of 
-///        the joint
-void get_initial_velocity( std::map<std::string,double>& qd ) {
+/// @param[out] qd the map returned containing the velocities mapped to the 
+///        name of the joint
+void get_initial_velocity( std::map<std::string,double>& velocity ) {
 
   // the starting velocity for the pivot joint is zero
-  qd.insert( std::pair<std::string,double>("pivot_joint", 0.0) );
+  velocity.insert( std::pair<std::string,double>("pivot_joint", 0.0) );
 }
 
 //-----------------------------------------------------------------------------
@@ -27,10 +27,13 @@ void get_initial_velocity( std::map<std::string,double>& qd ) {
 /// @param pos the map of joint positions mapped to the joint name
 /// @param vel the map of joint velocities mapped to the joint name
 /// @param force the map returned containing the joint torques mapped joint name
-void get_control( double t, std::map<std::string,double> pos, std::map<std::string,double> vel, std::map<std::string, double>& force ) {
+void get_control( double t, std::map<std::string,double> position, std::map<std::string,double> velocity, std::map<std::string, double>& force ) {
+
+  double q = position.find( "pivot_joint" )->second;
+  double dq = velocity.find( "pivot_joint" )->second;
 
   // insert a null control for the pivot joint
-  force.insert( std::pair<std::string,double>("pivot_joint", 0.0) );  
+  force.insert( std::pair<std::string,double>( "pivot_joint", 0.0 ) );  
 }
 
 //-----------------------------------------------------------------------------
